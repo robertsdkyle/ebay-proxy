@@ -1,1 +1,211 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wayward Traderz</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f4f4;
+      color: #222;
+    }
+
+    header {
+      background: #e53238;
+      color: #fff;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header h1 { font-size: 1.5rem; letter-spacing: 0.03em; }
+
+    header a {
+      margin-left: auto;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+
+    header a:hover { opacity: 1; text-decoration: underline; }
+
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    #status {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #555;
+      font-size: 1rem;
+    }
+
+    #status.error { color: #c0392b; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
+    .card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: contain;
+      background: #f9f9f9;
+      padding: 0.5rem;
+    }
+
+    .card-body {
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 0.4rem;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-price {
+      margin-top: auto;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #e53238;
+    }
+
+    .card-condition {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Wayward Traderz</h1>
+  <a href="https://www.ebay.com/str/waywardtraderz" target="_blank" rel="noopener">
+    View full store on eBay &rarr;
+  </a>
+</header>
+
+<main>
+  <div id="status">Loading listings&hellip;</div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  &copy; <span id="year"></span> Wayward Traderz &mdash; powered by eBay
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  const FUNCTION_URL = "/.netlify/functions/ebay";
+
+  async function loadListings() {
+    const status = document.getElementById("status");
+    const grid   = document.getElementById("grid");
+
+    try {
+      const res  = await fetch(FUNCTION_URL);
+      const data = await res.json();
+
+      // Surface API-level errors clearly
+      if (data.errorMessage) {
+        const msg = data.errorMessage?.[0]?.error?.[0]?.message?.[0] ?? "Unknown eBay API error";
+        status.textContent = `eBay API error: ${msg}`;
+        status.className = "error";
+        return;
+      }
+
+      const response  = data.findItemsIneBayStoresResponse?.[0];
+      const items     = response?.searchResult?.[0]?.item ?? [];
+
+      if (!items.length) {
+        status.textContent = "No listings found.";
+        return;
+      }
+
+      status.textContent = "";
+
+      items.forEach(item => {
+        const title     = item.title?.[0] ?? "Untitled";
+        const url       = item.viewItemURL?.[0] ?? "#";
+        const image     = item.galleryURL?.[0] ?? "";
+        const price     = item.sellingStatus?.[0]?.currentPrice?.[0]?.__value__;
+        const currency  = item.sellingStatus?.[0]?.currentPrice?.[0]?.["@currencyId"] ?? "USD";
+        const condition = item.condition?.[0]?.conditionDisplayName?.[0] ?? "";
+
+        const card = document.createElement("a");
+        card.className = "card";
+        card.href = url;
+        card.target = "_blank";
+        card.rel = "noopener";
+
+        card.innerHTML = `
+          ${image ? `<img src="${image}" alt="${escapeHtml(title)}" loading="lazy" />` : ""}
+          <div class="card-body">
+            <div class="card-title">${escapeHtml(title)}</div>
+            ${condition ? `<div class="card-condition">${escapeHtml(condition)}</div>` : ""}
+            ${price ? `<div class="card-price">${formatPrice(price, currency)}</div>` : ""}
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+    } catch (err) {
+      status.textContent = `Failed to load listings: ${err.message}`;
+      status.className = "error";
+    }
+  }
+
+  function formatPrice(value, currency) {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(value);
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  loadListings();
+</script>
+
+</body>
+</html>
