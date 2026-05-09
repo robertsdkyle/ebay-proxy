@@ -1,81 +1,187 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wayward Traderz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=IM+Fell+English&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f4f4f4;
-      color: #222;
+    :root {
+      --orange: #F5A623;
+      --orange-dark: #D4891A;
+      --black: #0f0f0f;
+      --card-bg: #1a1a1a;
+      --border: #333;
+      --text: #e8e8e8;
+      --muted: #999;
     }
 
-    header {
-      background: #e53238;
-      color: #fff;
-      padding: 1.25rem 2rem;
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: "IM Fell English", Georgia, serif;
+      min-height: 100vh;
+    }
+
+    /* ── TOP NAV ── */
+    nav {
+      background: #000;
+      border-bottom: 2px solid var(--orange);
       display: flex;
       align-items: center;
-      gap: 1rem;
+      justify-content: space-between;
+      padding: 0.6rem 2rem;
     }
 
-    header h1 { font-size: 1.5rem; letter-spacing: 0.03em; }
+    .nav-logo {
+      height: 52px;
+      width: 52px;
+      object-fit: contain;
+    }
 
-    header a {
-      margin-left: auto;
-      color: #fff;
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--orange);
       text-decoration: none;
-      font-size: 0.9rem;
-      opacity: 0.85;
+      font-family: "Cinzel", serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
     }
 
-    header a:hover { opacity: 1; text-decoration: underline; }
+    .nav-links a:hover { color: #fff; }
 
-    main {
-      max-width: 1200px;
-      margin: 2rem auto;
+    /* ── HERO BANNER ── */
+    .hero {
+      width: 100%;
+      max-height: 260px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--orange);
+    }
+
+    .hero img {
+      width: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    /* Fallback if image missing */
+    .hero-fallback {
+      display: none;
+      padding: 3rem 2rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    .hero img.missing + .hero-fallback { display: flex; }
+
+    .hero-fallback h1 {
+      font-family: "Cinzel Decorative", serif;
+      font-size: clamp(1.8rem, 5vw, 3.5rem);
+      color: var(--black);
+      line-height: 1.2;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), transparent);
+      margin: 0;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+    }
+
+    .section-header h2 {
+      font-family: "Cinzel Decorative", serif;
+      font-size: clamp(1.1rem, 3vw, 1.8rem);
+      color: var(--orange);
+      letter-spacing: 0.05em;
+    }
+
+    .section-header p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    /* ── STATUS / ERROR ── */
+    #status {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 1.05rem;
+    }
+
+    #status.error { color: #e05252; }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1.25rem;
+      max-width: 1280px;
+      margin: 0 auto 3rem;
       padding: 0 1.5rem;
     }
 
-    #status {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #555;
-      font-size: 1rem;
-    }
-
-    #status.error { color: #c0392b; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1.25rem;
-    }
-
+    /* ── CARD ── */
     .card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      transition: box-shadow 0.2s;
       text-decoration: none;
       color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
     }
 
-    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    .card:hover {
+      border-color: var(--orange);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(245, 166, 35, 0.2);
+    }
 
-    .card img {
-      width: 100%;
+    .card-img-wrap {
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       aspect-ratio: 1;
+      overflow: hidden;
+    }
+
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      background: #f9f9f9;
       padding: 0.5rem;
+    }
+
+    .card-img-wrap .no-img {
+      color: #444;
+      font-size: 2rem;
     }
 
     .card-body {
@@ -83,70 +189,115 @@
       display: flex;
       flex-direction: column;
       flex: 1;
-      gap: 0.4rem;
+      gap: 0.35rem;
+      border-top: 1px solid var(--border);
     }
 
     .card-title {
-      font-size: 0.85rem;
-      line-height: 1.35;
+      font-family: "Cinzel", serif;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+      color: #ccc;
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
+    .card-condition {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
     .card-price {
       margin-top: auto;
-      font-weight: 700;
-      font-size: 1rem;
-      color: #e53238;
+      padding-top: 0.5rem;
+      font-family: "Cinzel Decorative", serif;
+      font-size: 0.95rem;
+      color: var(--orange);
     }
 
-    .card-condition {
-      font-size: 0.75rem;
-      color: #777;
-    }
-
+    /* ── FOOTER ── */
     footer {
-      text-align: center;
+      border-top: 2px solid var(--border);
       padding: 2rem;
-      font-size: 0.8rem;
-      color: #999;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
     }
+
+    footer img {
+      height: 60px;
+      opacity: 0.7;
+    }
+
+    footer p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    footer a {
+      color: var(--orange);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>Wayward Traderz</h1>
-  <a href="https://www.ebay.com/str/waywardtraderz" target="_blank" rel="noopener">
-    View full store on eBay &rarr;
-  </a>
-</header>
+<!-- NAV -->
+<nav>
+  <img src="logo.png" alt="Wayward Traderz" class="nav-logo"
+       onerror="this.style.display='none'" />
+  <ul class="nav-links">
+    <li><a href="https://www.ebay.com/str/waywardtraderz" target="_blank" rel="noopener">eBay Store</a></li>
+    <li><a href="https://www.ebay.com/str/waywardtraderz" target="_blank" rel="noopener">All Listings</a></li>
+  </ul>
+</nav>
 
-<main>
-  <div id="status">Loading listings&hellip;</div>
-  <div class="grid" id="grid"></div>
-</main>
+<!-- HERO BANNER -->
+<div class="hero">
+  <img src="banner.jpg" alt="Welcome, Fellow Wayward Collectorz"
+       onerror="this.classList.add('missing')" />
+  <div class="hero-fallback">
+    <h1>Welcome, Fellow<br/>Wayward Collectorz</h1>
+  </div>
+</div>
 
+<div class="divider"></div>
+
+<!-- LISTINGS -->
+<div class="section-header">
+  <h2>Current Listings</h2>
+  <p>Treasures for the discerning collector &mdash; fresh from the trove</p>
+</div>
+
+<div id="status">Searching the trove&hellip;</div>
+<div class="grid" id="grid"></div>
+
+<!-- FOOTER -->
 <footer>
-  &copy; <span id="year"></span> Wayward Traderz &mdash; powered by eBay
+  <img src="logo.png" alt="Wayward Traderz" onerror="this.style.display='none'" />
+  <p>&copy; <span id="year"></span> Wayward Traderz &mdash; <a href="https://www.ebay.com/str/waywardtraderz" target="_blank" rel="noopener">View full store on eBay</a></p>
 </footer>
 
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
-
-  const FUNCTION_URL = "/.netlify/functions/ebay";
 
   async function loadListings() {
     const status = document.getElementById("status");
     const grid   = document.getElementById("grid");
 
     try {
-      const res  = await fetch(FUNCTION_URL);
+      const res  = await fetch("/.netlify/functions/ebay");
       const data = await res.json();
 
-      // Surface API-level errors clearly
       if (data.errorMessage) {
         const msg = data.errorMessage?.[0]?.error?.[0]?.message?.[0] ?? "Unknown eBay API error";
         status.textContent = `eBay API error: ${msg}`;
@@ -154,11 +305,10 @@
         return;
       }
 
-      const response  = data.findItemsIneBayStoresResponse?.[0];
-      const items     = response?.searchResult?.[0]?.item ?? [];
+      const items = data.findItemsIneBayStoresResponse?.[0]?.searchResult?.[0]?.item ?? [];
 
       if (!items.length) {
-        status.textContent = "No listings found.";
+        status.textContent = "The trove is empty — check back soon.";
         return;
       }
 
@@ -179,7 +329,11 @@
         card.rel = "noopener";
 
         card.innerHTML = `
-          ${image ? `<img src="${image}" alt="${escapeHtml(title)}" loading="lazy" />` : ""}
+          <div class="card-img-wrap">
+            ${image
+              ? `<img src="${image}" alt="${escapeHtml(title)}" loading="lazy" />`
+              : `<span class="no-img">&#9670;</span>`}
+          </div>
           <div class="card-body">
             <div class="card-title">${escapeHtml(title)}</div>
             ${condition ? `<div class="card-condition">${escapeHtml(condition)}</div>` : ""}
